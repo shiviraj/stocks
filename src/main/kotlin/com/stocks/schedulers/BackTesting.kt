@@ -3,7 +3,6 @@ package com.stocks.schedulers
 import com.opencsv.CSVWriter
 import com.stocks.domain.MyStock
 import com.stocks.service.StockService
-import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.io.File
 import java.io.StringWriter
@@ -13,7 +12,7 @@ import kotlin.system.exitProcess
 class BackTesting(
     val stockService: StockService,
 ) {
-    @Scheduled(cron = "0/5 * * * * *")
+    //    @Scheduled(cron = "0/5 * * * * *")
     fun start() {
         val stocks = mutableListOf<MyStock>()
 

@@ -1,6 +1,7 @@
 package com.stocks.service
 
 import com.stocks.domain.Stock
+import com.stocks.domain.TradeableStock
 import com.stocks.repository.StockRepository
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
@@ -13,7 +14,8 @@ import java.time.LocalDateTime
 @Service
 class StockService(
     val stockRepository: StockRepository,
-    val symbolService: SymbolService
+    val symbolService: SymbolService,
+    val tradeableStockService: TradeableStockService
 ) {
     fun saveAll(stocks: List<Stock>): Flux<Stock> {
         return stockRepository.saveAll(stocks)
@@ -35,13 +37,12 @@ class StockService(
             }
     }
 
-    fun findTradeableStocks(): Flux<Stock> {
+    fun findTradeableStocks(): Flux<TradeableStock> {
         return getLastFiveStocks()
-            .map {
-                calculateBuyable(it)
-                it.first()
+            .flatMap {
+                val buyable = calculateBuyable(it)
+                tradeableStockService.updateAsBuyable(buyable)
             }
-
     }
 
     fun calculateBuyable(list: List<Stock>): Stock? {

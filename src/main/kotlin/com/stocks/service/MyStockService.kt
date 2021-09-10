@@ -1,7 +1,7 @@
 package com.stocks.service
 
 import com.stocks.domain.MyStock
-import com.stocks.domain.Stock
+import com.stocks.domain.TradeableStock
 import com.stocks.repository.MyStockRepository
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
@@ -13,20 +13,21 @@ import java.time.LocalDateTime
 class MyStockService(
     val myStockRepository: MyStockRepository,
     val stockService: StockService,
+    val tradeableStockService: TradeableStockService
 ) {
     fun save(myStock: MyStock): Mono<MyStock> {
         return myStockRepository.save(myStock)
     }
 
-    fun findSellableStock(): Flux<Stock> {
+    fun findSellableStock(): Flux<TradeableStock> {
         return myStockRepository.findAll()
             .flatMap { myStock ->
                 stockService.getLastFiveStocks(myStock.symbol)
-                    .map {
-                        if (it.first().close < myStock.stopLoss) {
-                            println("Ready to sell")
-                        }
-                        it.first()
+                    .mapNotNull {
+                        if (it.first().close < myStock.stopLoss) it.first() else null
+                    }
+                    .flatMapMany {
+                        tradeableStockService.updateAsSellable(it)
                     }
             }
     }
@@ -39,9 +40,7 @@ class MyStockService(
                         if (it.first().smma22 > myStock.stopLoss) {
                             myStock.stopLoss = it.first().smma22
                             save(myStock)
-                        } else {
-                            Mono.empty()
-                        }
+                        } else Mono.empty()
                     }
             }
     }
