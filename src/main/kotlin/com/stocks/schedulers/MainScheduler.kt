@@ -16,8 +16,7 @@ class MainScheduler(
 ) {
     @Scheduled(cron = "0 0/5 * * * *")
     fun start() {
-        val time = LocalDateTime.now()
-        if (time.hour == 11 && time.minute <= 10) {
+        if (LocalDateTime.now().minute <= 10) {
             stockFetcher.fetch().blockLast()
             Thread.sleep(1000)
 

@@ -40,8 +40,10 @@ class StockService(
     fun findTradeableStocks(): Flux<TradeableStock> {
         return getLastFiveStocks()
             .flatMap {
-                val buyable = calculateBuyable(it)
-                tradeableStockService.updateAsBuyable(buyable)
+                if (it.size == 5) {
+                    val buyable = calculateBuyable(it)
+                    tradeableStockService.updateAsBuyable(buyable)
+                } else Mono.empty()
             }
     }
 
