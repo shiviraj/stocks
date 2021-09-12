@@ -14,6 +14,7 @@ data class TradeableStock(
     @Id
     var id: String? = null,
     val symbol: String,
+    val key: String,
     val cost: BigDecimal,
     var stopLoss: BigDecimal,
     val risk: BigDecimal,

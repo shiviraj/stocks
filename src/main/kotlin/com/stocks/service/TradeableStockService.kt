@@ -29,6 +29,7 @@ class TradeableStockService(
     private fun createTradeableStock(stock: Stock, type: TradeType): TradeableStock {
         return TradeableStock(
             symbol = stock.symbol,
+            key = stock.key,
             cost = stock.close,
             stopLoss = stock.smma22,
             risk = stock.close - stock.smma22,
