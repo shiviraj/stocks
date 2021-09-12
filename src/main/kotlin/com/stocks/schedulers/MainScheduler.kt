@@ -3,6 +3,7 @@ package com.stocks.schedulers
 import com.stocks.service.MyStockService
 import com.stocks.service.StockFetcher
 import com.stocks.service.StockService
+import com.stocks.webClient.WebClientWrapper
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
@@ -13,6 +14,7 @@ class MainScheduler(
     val stockFetcher: StockFetcher,
     val stockService: StockService,
     val myStockService: MyStockService,
+    val webClientWrapper: WebClientWrapper
 ) {
     @Scheduled(cron = "0 0/5 * * * *")
     fun start() {
@@ -38,6 +40,12 @@ class MainScheduler(
 
             myStockService.findSellableStock().blockLast()
             println("Update Sellable")
+
+            webClientWrapper.get(
+                baseUrl = System.getenv("NOTIFIER_URI"),
+                path = "",
+                returnType = String::class.java,
+            ).block()
             exitProcess(0)
         }
     }
