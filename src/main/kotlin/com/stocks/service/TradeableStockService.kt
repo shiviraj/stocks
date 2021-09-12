@@ -31,7 +31,7 @@ class TradeableStockService(
             symbol = stock.symbol,
             cost = stock.close,
             stopLoss = stock.smma22,
-            risk = stock.smma22 - stock.close,
+            risk = stock.close - stock.smma22,
             date = stock.date,
             type = type
         )

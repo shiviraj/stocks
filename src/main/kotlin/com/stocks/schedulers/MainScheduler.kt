@@ -5,6 +5,7 @@ import com.stocks.service.StockFetcher
 import com.stocks.service.StockService
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
+import java.time.LocalDateTime
 import kotlin.system.exitProcess
 
 @Component
@@ -13,24 +14,32 @@ class MainScheduler(
     val stockService: StockService,
     val myStockService: MyStockService,
 ) {
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "0 0/5 * * * *")
     fun start() {
-        stockFetcher.fetch().blockLast()
-        Thread.sleep(1000)
+        val time = LocalDateTime.now()
+        if (time.hour == 11 && time.minute <= 10) {
+            stockFetcher.fetch().blockLast()
+            Thread.sleep(1000)
 
-        stockService.updateSMMA().blockLast()
-        Thread.sleep(1000)
+            stockService.updateSMMA().blockLast()
+            println("Update SMMA")
+            Thread.sleep(1000)
 
-        stockService.removeUnwantedStocks().block()
-        Thread.sleep(1000)
+            stockService.removeUnwantedStocks().block()
+            println("Removed Unwanted Stocks")
+            Thread.sleep(1000)
 
-        stockService.findTradeableStocks().blockLast()
-        Thread.sleep(1000)
+            stockService.findTradeableStocks().blockLast()
+            println("Tradeable Stock")
+            Thread.sleep(1000)
 
-        myStockService.updateStopLoss().blockLast()
-        Thread.sleep(1000)
+            myStockService.updateStopLoss().blockLast()
+            println("Update Stop loss")
+            Thread.sleep(1000)
 
-        myStockService.findSellableStock().blockLast()
-        exitProcess(0)
+            myStockService.findSellableStock().blockLast()
+            println("Update Sellable")
+            exitProcess(0)
+        }
     }
 }
